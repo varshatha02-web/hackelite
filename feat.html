@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Urban Policy Decision Engine - INTERACTIVE</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Exo+2:wght@700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* [KEEP ALL YOUR EXISTING STYLES - SAME PERFECT DESIGN] */
+    body { font-family: 'Inter', sans-serif; }
+    h1, h4 { font-family: 'Orbitron', 'Exo 2', sans-serif; }
+    h1 { font-weight: 900; letter-spacing: -0.02em; }
+    h4 { font-weight: 800; letter-spacing: 0.05em; }
+    .glass {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+    .glow-neon-green { box-shadow: 0 0 20px rgba(34, 197, 94, 0.6), 0 0 40px rgba(34, 197, 94, 0.3); }
+    .glow-orange-subtle { box-shadow: 0 0 15px rgba(251, 146, 60, 0.5); }
+    .glow-blue-subtle { box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+    .glow-purple-subtle { box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
+    .policy-active { 
+      background: rgba(34, 197, 94, 0.2) !important;
+      border-color: rgba(34, 197, 94, 0.5) !important;
+      transform: scale(1.02);
+    }
+    .heatmap-intense {
+      background: 
+        radial-gradient(circle at 15% 85%, rgba(254, 178, 178, 0.9) 0%, transparent 35%),
+        radial-gradient(circle at 85% 15%, rgba(254, 240, 138, 0.8) 0%, transparent 35%),
+        radial-gradient(circle at 40% 70%, rgba(254, 202, 202, 0.7) 0%, transparent 35%),
+        radial-gradient(circle at 70% 40%, rgba(255, 165, 0, 0.6) 0%, transparent 35%),
+        radial-gradient(circle at 25% 25%, rgba(255, 107, 107, 0.5) 0%, transparent 35%);
+      background-blend-mode: screen;
+      animation: heatmapPulse 2s ease-in-out infinite alternate;
+    }
+    .heatmap-improved {
+      background: 
+        radial-gradient(circle at 15% 85%, rgba(34, 197, 94, 0.4) 0%, transparent 50%),
+        radial-gradient(circle at 85% 15%, rgba(16, 185, 129, 0.3) 0%, transparent 50%);
+      animation: none;
+    }
+    @keyframes heatmapPulse { 0% { opacity: 0.8; } 100% { opacity: 1; } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fadeInUp { animation: fadeInUp 0.5s ease-out forwards; }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-green-950/20 to-slate-900 min-h-screen p-4 text-white overflow-y-auto">
+  
+  <!-- INTERACTIVE HEADER -->
+  <div class="text-center mb-6 animate-fadeInUp">
+    <h1 class="text-4xl md:text-5xl lg:text-6xl font-orbitron font-black bg-gradient-to-r from-emerald-400 via-cyan-400 to-lime-400 bg-clip-text text-transparent drop-shadow-2xl mb-3 tracking-tight">
+      Urban Policy Decision Engine
+    </h1>
+    <div class="glass inline-block px-8 py-3 rounded-2xl text-sm text-emerald-300 glow-neon-green">
+      Click policies to simulate pollution reduction • Real-time IoT simulation
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto grid grid-cols-[28%_42%_30%] gap-5 px-2">
+    <!-- LEFT: Sensors -->
+    <div class="space-y-4 pr-2">
+      <div class="glass rounded-2xl p-5 h-[47%] animate-fadeInUp relative overflow-hidden">
+        <div class="flex items-start gap-3 mb-4">
+          <div class="w-10 h-10 bg-gradient-to-br from-orange-400 to-red-400 rounded-xl flex items-center justify-center glow-orange-subtle shrink-0 mt-1">
+            <i data-lucide="droplets" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h4 class="text-lg font-orbitron font-bold mb-1">Live AQI</h4>
+            <span id="aqi-status" class="px-3 py-1 bg-orange-500/30 border border-orange-400/40 text-xs font-bold text-orange-300 rounded-full">Unhealthy</span>
+          </div>
+        </div>
+        <div class="text-center mt-2">
+          <div id="current-aqi" class="text-4xl font-black text-orange-400 glow-orange-subtle mb-3 font-orbitron">162</div>
+          <div class="grid grid-cols-2 gap-3 text-xs mb-4">
+            <div class="text-center">
+              <div class="font-semibold text-orange-300 text-xs mb-1">PM<sub>2.5</sub></div>
+              <div id="pm25" class="text-lg font-black text-orange-400">58μg</div>
+            </div>
+            <div class="text-center">
+              <div class="font-semibold text-blue-300 text-xs mb-1">NO<sub>2</sub></div>
+              <div id="no2" class="text-lg font-black text-blue-400">28ppb</div>
+            </div>
+          </div>
+          <div class="flex items-center justify-center gap-2 text-xs text-slate-400 bg-slate-800/60 px-3 py-1.5 rounded-xl">
+            <i data-lucide="cloud-rain" class="w-3 h-3"></i>
+            <span id="weather">Cloudy 27°C</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hotspots -->
+      <div id="hotspots-container" class="glass rounded-2xl p-5 h-[47%] animate-fadeInUp relative">
+        <div class="flex items-start gap-3 mb-4">
+          <div class="w-10 h-10 bg-gradient-to-br from-red-400 to-orange-400 rounded-xl flex items-center justify-center glow-orange-subtle shrink-0 mt-1">
+            <i data-lucide="map-pin-off" class="w-5 h-5"></i>
+          </div>
+          <h4 class="text-lg font-orbitron font-bold">Live Hotspots</h4>
+        </div>
+        <div class="absolute inset-0 heatmap-intense"></div>
+        <div class="relative z-10 h-full flex flex-col justify-end">
+          <div class="h-4/5 bg-gradient-to-t from-slate-900/70 rounded-xl mb-2"></div>
+          <div id="top-hotspot" class="bg-gradient-to-r from-red-500/80 to-orange-500/80 text-white px-3 py-1.5 rounded-xl text-xs font-bold font-orbitron">
+            Central Market 178
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MIDDLE: Policies + Chart -->
+    <div class="space-y-4">
+      <!-- INTERACTIVE POLICIES -->
+      <div class="glass rounded-2xl p-5 h-[47%] animate-fadeInUp overflow-y-auto">
+        <div class="flex items-start gap-3 mb-5 pb-2 border-b border-white/10">
+          <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-xl flex items-center justify-center glow-neon-green shrink-0 mt-1">
+            <i data-lucide="zap" class="w-5 h-5"></i>
+          </div>
+          <h4 class="text-lg font-orbitron font-bold">Policy Simulator <span id="active-policies">(0 active)</span></h4>
+        </div>
+        <div class="space-y-3" id="policy-list">
+          <!-- Policies will be generated by JS -->
+        </div>
+      </div>
+
+      <!-- CHART -->
+      <div class="glass rounded-2xl p-5 h-[47%] animate-fadeInUp relative">
+        <div class="flex items-center justify-between mb-5 pb-2 border-b border-white/10">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-xl flex items-center justify-center glow-neon-green">
+              <i data-lucide="line-chart" class="w-4.5 h-4.5"></i>
+            </div>
+            <h4 class="text-lg font-orbitron font-bold">12hr Forecast</h4>
+          </div>
+          <span class="text-xs bg-emerald-500/20 border border-emerald-400/30 px-3 py-1 rounded-xl text-emerald-300 font-medium">Live Simulation</span>
+        </div>
+        <div style="height: 180px; position: relative;">
+          <canvas id="aqiChart" height="180"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Results -->
+    <div class="space-y-4 pl-2">
+      <div class="glass rounded-2xl p-5 h-[47%] animate-fadeInUp relative">
+        <div class="flex items-start gap-3 mb-4">
+          <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-xl flex items-center justify-center glow-neon-green shrink-0 mt-1">
+            <i data-lucide="git-compare" class="w-5 h-5"></i>
+          </div>
+          <h4 class="text-lg font-orbitron font-bold">Before/After</h4>
+        </div>
+        <div class="grid grid-cols-2 gap-3 h-32 mb-4">
+          <div id="before-map" class="relative rounded-xl overflow-hidden border border-orange-400/40 glow-orange-subtle h-full">
+            <div class="absolute inset-0 heatmap-intense bg-red-400/20"></div>
+            <div class="absolute top-1 right-1 bg-red-500/90 text-white px-2 py-0.5 rounded text-xs font-bold font-orbitron">Before</div>
+          </div>
+          <div id="after-map" class="relative rounded-xl overflow-hidden border border-emerald-400/40 glow-neon-green h-full">
+            <div class="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-transparent opacity-80"></div>
+            <div class="absolute top-1 right-1 bg-emerald-500/90 text-white px-2 py-0.5 rounded text-xs font-bold font-orbitron">After</div>
+          </div>
+        </div>
+        <div class="text-center text-sm">
+          <div id="impact-score" class="text-3xl font-black text-emerald-400 mb-1 glow-neon-green font-orbitron">↓0 pts</div>
+          <div id="coverage-impact" class="text-emerald-300 bg-emerald-500/20 px-2 py-1 rounded-lg border border-emerald-400/30 text-xs">0% ↓ Coverage</div>
+        </div>
+      </div>
+
+      <!-- SIMULATE BUTTON -->
+      <div class="glass rounded-2xl p-5 h-[47%] flex flex-col justify-between bg-gradient-to-b from-emerald-500/10 glow-neon-green animate-fadeInUp">
+        <div class="flex items-start gap-3 mb-4">
+          <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-xl flex items-center justify-center glow-neon-green shrink-0 mt-1">
+            <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+          </div>
+          <h4 class="text-lg font-orbitron font-bold text-emerald-300">Results</h4>
+        </div>
+        <div class="text-center flex-1 flex flex-col justify-center">
+          <div id="results-summary" class="text-4xl font-black text-emerald-400 mb-2 font-orbitron">162 → 162</div>
+          <div id="total-impact" class="text-2xl font-black text-emerald-400 mb-3 glow-neon-green font-orbitron">0 Points</div>
+          <div id="hotspot-summary" class="text-xs text-emerald-300 bg-emerald-500/20 px-3 py-1.5 rounded-xl border border-emerald-400/30 mb-4 mx-auto">
+            <i data-lucide="arrow-down-circle" class="w-4 h-4 inline mr-1"></i>
+            No policies active
+          </div>
+        </div>
+        <button id="reset-btn" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-3 px-6 rounded-xl mx-auto transition-all shadow-xl glow-neon-green text-sm font-orbitron hover:scale-105">
+          <i data-lucide="refresh-cw" class="w-5 h-5 inline mr-1"></i> Reset Simulation
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+    
+    // GAME STATE
+    let currentAQI = 162;
+    let activePolicies = [];
+    const baseData = [85, 92, 110, 145, 162, 178, 155, 142, 130, 125, 118, 105];
+    
+    const policies = [
+      { id: 'truck_ban', name: 'Heavy Truck Ban', desc: 'Peak hours restriction', impact: -14, color: 'orange', icon: 'truck' },
+      { id: 'bus_upgrade', name: 'Bus Upgrade', desc: '9 high emission units', impact: -9, color: 'amber', icon: 'bus' },
+      { id: 'smart_signals', name: 'Smart Signals', desc: 'Dynamic priority 5 spots', impact: -5, color: 'blue', icon: 'activity' },
+      { id: 'car_reduction', name: 'Car Reduction', desc: 'Congestion pricing zones', impact: -8, color: 'indigo', icon: 'car' },
+      { id: 'bike_lanes', name: 'Bike Lanes', desc: '10km protected network', impact: -6, color: 'emerald', icon: 'smartphone-charging' }
+    ];
+
+    // Initialize policies UI
+    function initPolicies() {
+      const policyList = document.getElementById('policy-list');
+      policies.forEach(policy => {
+        const div = document.createElement('div');
+        div.className = 'flex items-center gap-3 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-all border border-white/10 group cursor-pointer policy-item';
+        div.onclick = () => togglePolicy(policy.id);
+        div.innerHTML = `
+          <div class="w-10 h-10 bg-gradient-to-br from-${policy.color}-400/30 to-${policy.color}-500/30 rounded-xl flex items-center justify-center border border-${policy.color}-400/30 group-hover:glow-${policy.color === 'orange' ? 'orange-subtle' : policy.color === 'indigo' ? 'purple-subtle' : policy.color === 'emerald' ? 'neon-green' : 'blue-subtle'}">
+            <i data-lucide="${policy.icon}" class="w-5 h-5 text-${policy.color}-400"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="font-bold text-sm mb-0.5 truncate font-orbitron">${policy.name}</div>
+            <div class="text-xs text-slate-400 truncate">${policy.desc}</div>
+          </div>
+          <div class="bg-gradient-to-r from-${policy.color}-400 to-${policy.color === 'orange' ? 'red' : policy.color === 'amber' ? 'orange' : policy.color === 'blue' ? 'cyan' : policy.color === 'indigo' ? 'purple' : 'green'}-400 text-white px-3 py-1 rounded-lg text-xs font-bold shadow-md glow-${policy.color === 'orange' ? 'orange-subtle' : policy.color === 'indigo' ? 'purple-subtle' : policy.color === 'emerald' ? 'neon-green' : 'blue-subtle'} whitespace-nowrap font-orbitron">
+            ${policy.impact}
+          </div>
+        `;
+        policyList.appendChild(div);
+      });
+    }
+
+    // Toggle policy on/off
+    function togglePolicy(policyId) {
+      const index = activePolicies.indexOf(policyId);
+      if (index > -1) {
+        activePolicies.splice(index, 1);
+        document.querySelector(`[onclick="togglePolicy('${policyId}')"]`).classList.remove('policy-active');
+      } else {
+        activePolicies.push(policyId);
+        document.querySelector(`[onclick="togglePolicy('${policyId}')"]`).classList.add('policy-active');
+      }
+      updateSimulation();
+    }
+
+    // Update all dashboard elements
+    function updateSimulation() {
+      // Calculate total impact
+      const totalImpact = activePolicies.reduce((sum, id) => sum + policies.find(p => p.id === id).impact, 0);
+      const newAQI = Math.max(50, currentAQI + totalImpact);
+      
+      // Update AQI display
+      document.getElementById('current-aqi').textContent = newAQI;
+      document.getElementById('aqi-status').textContent = newAQI < 100 ? 'Good' : newAQI < 150 ? 'Moderate' : 'Unhealthy';
+      document.getElementById('aqi-status').className = `px-3 py-1 ${newAQI < 100 ? 'bg-green-500/30 border-green-400/40 text-green-300' : newAQI < 150 ? 'bg-yellow-500/30 border-yellow-400/40 text-yellow-300' : 'bg-orange-500/30 border-orange-400/40 text-orange-300'} rounded-full text-xs font-bold`;
+      
+      // Update results
+      document.getElementById('results-summary').textContent = `${currentAQI} → ${newAQI}`;
+      document.getElementById('total-impact').textContent = `${totalImpact} Points`;
+      document.getElementById('impact-score').textContent = `↓${Math.abs(totalImpact)} pts`;
+      document.getElementById('coverage-impact').textContent = `${Math.round(Math.abs(totalImpact) * 1.8)}% ↓ Coverage`;
+      document.getElementById('active-policies').textContent = `(${activePolicies.length} active)`;
+      document.getElementById('hotspot-summary').innerHTML = activePolicies.length ? 
+        `<i data-lucide="arrow-down-circle" class="w-4 h-4 inline mr-1"></i>${Math.round(Math.abs(totalImpact) * 1.8)}% Smaller Hotspots` : 
+        `<i data-lucide="arrow-down-circle" class="w-4 h-4 inline mr-1"></i>No policies active`;
+      
+      // Visual feedback
+      if (activePolicies.length) {
+        document.getElementById('before-map').style.opacity = '0.7';
+        document.getElementById('after-map').classList.add('heatmap-improved');
+      } else {
+        document.getElementById('before-map').style.opacity = '1';
+        document.getElementById('after-map').classList.remove('heatmap-improved');
+      }
+      
+      // Update chart
+      updateChart(newAQI);
+    }
+
+    // Live IoT simulation
+    setInterval(() => {
+      currentAQI = baseData[Math.floor(Math.random() * baseData.length)];
+      if (!activePolicies.length) updateSimulation();
+    }, 8000);
+
+    // Chart
+    let chart;
+    function updateChart(finalAQI) {
+      const ctx = document.getElementById('aqiChart')?.getContext('2d');
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Now', '1h', '2h', '3h', '4h', '5h', '6h', '7h', '8h', '9h', '10h', '11h', '12h'],
+          datasets: [{
+            data: [currentAQI, currentAQI + 2, currentAQI + 5, currentAQI + 3, ...Array(8).fill(currentAQI + 8)],
+            borderColor: '#fb923c',
+            backgroundColor: 'transparent',
+            tension: 0.4,
+            borderWidth: 2.5,
+            pointRadius: 0,
+            fill: false,
+            label: 'No Policy'
+          }, {
+            data: [currentAQI, ...Array(12).fill(finalAQI).map((v, i) => v - (i * 0.5))],
+            borderColor: '#22c55e',
+            backgroundColor: ctx => {
+              const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 180);
+              gradient.addColorStop(0, 'rgba(34, 197, 94, 0.25)');
+              gradient.addColorStop(1, 'rgba(34, 197, 94, 0)');
+              return gradient;
+            },
+            tension: 0.4,
+            borderWidth: 3,
+            pointRadius: 0,
+            fill: true,
+            label: 'With Policies'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: 'rgba(156, 163, 175, 0.4)', font: { size: 10 } } },
+            y: { min: 50, max: 190, grid: { color: 'rgba(156, 163, 175, 0.08)' }, ticks: { color: 'rgba(156, 163, 175, 0.4)', font: { size: 10 } } }
+          }
+        }
+      });
+    }
+
+    // Reset
+    document.getElementById('reset-btn').onclick = () => {
+      activePolicies = [];
+      document.querySelectorAll('.policy-item').forEach(el => el.classList.remove('policy-active'));
+      currentAQI = 162;
+      updateSimulation();
+    };
+
+    // Initialize
+    initPolicies();
+    updateSimulation();
+  </script>
+</body>
+</html>

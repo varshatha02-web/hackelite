@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Urban Policy Decision Engine - Air Pollution Mitigation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .glass {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 25px 45px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    .glow-orange { box-shadow: 0 0 25px rgba(255, 165, 0, 0.6); }
+    .glow-teal { box-shadow: 0 0 25px rgba(20, 184, 166, 0.6); }
+    .glow-blue { box-shadow: 0 0 25px rgba(59, 130, 246, 0.6); }
+    .heatmap {
+      background: 
+        radial-gradient(circle at 25% 75%, rgba(254, 226, 226, 0.8) 0%, transparent 40%),
+        radial-gradient(circle at 75% 25%, rgba(254, 252, 232, 0.7) 0%, transparent 40%),
+        radial-gradient(circle at 50% 90%, rgba(254, 202, 202, 0.6) 0%, transparent 40%),
+        radial-gradient(circle at 10% 40%, rgba(255, 165, 0, 0.5) 0%, transparent 40%);
+      background-blend-mode: overlay;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeInUp { animation: fadeInUp 0.6s ease-out forwards; }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 min-h-screen p-8 text-white">
+  <header class="glass rounded-3xl p-6 mb-8 max-w-7xl mx-auto animate-fadeInUp">
+    <h1 class="text-3xl font-black bg-gradient-to-r from-orange-400 to-teal-400 bg-clip-text text-transparent">
+      Urban Policy Decision Engine
+    </h1>
+    <p class="text-slate-400 mt-2">Air Pollution Mitigation Dashboard</p>
+  </header>
+
+  <main class="max-w-[1600px] mx-auto grid grid-cols-[1.2fr_2fr_1.6fr] gap-8 h-[85vh]">
+    <!-- Left Column (25%) -->
+    <div class="space-y-8 pr-4">
+      <!-- AQI Overview -->
+      <div class="glass rounded-3xl p-8 h-[48%] animate-fadeInUp animation-delay-100">
+        <div class="flex items-center gap-3 mb-8">
+          <div class="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center glow-orange">
+            <i data-lucide="droplets" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold">Current AQI</h3>
+            <span class="text-sm text-orange-400 font-medium bg-orange-500/20 px-3 py-1 rounded-full">Unhealthy</span>
+          </div>
+        </div>
+        <div class="text-center">
+          <div class="text-6xl font-black text-orange-400 glow-orange mb-4 tracking-tight">162</div>
+          <div class="grid grid-cols-2 gap-6 text-sm mb-6">
+            <div class="text-center">
+              <div class="font-bold text-orange-300 mb-1">PM<sub>2.5</sub></div>
+              <div class="text-2xl font-black text-orange-400">58 μg/m³</div>
+            </div>
+            <div class="text-center">
+              <div class="font-bold text-blue-300 mb-1">NO<sub>2</sub></div>
+              <div class="text-2xl font-black text-blue-400">28%</div>
+            </div>
+          </div>
+          <div class="flex items-center justify-center gap-3 text-xs text-slate-400 bg-slate-800/50 px-4 py-2 rounded-2xl">
+            <i data-lucide="cloud-drizzle" class="w-4 h-4"></i>
+            Cloudy • 27°C • 72% Humidity
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Hotspots -->
+      <div class="glass rounded-3xl p-8 h-[48%] animate-fadeInUp animation-delay-200 relative overflow-hidden">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-12 h-12 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl flex items-center justify-center glow-orange">
+            <i data-lucide="zap" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold">Live Pollution Hotspots</h3>
+        </div>
+        <div class="absolute inset-0 heatmap animate-pulse"></div>
+        <div class="relative z-10 h-full flex flex-col">
+          <div class="flex-1 bg-slate-900/50 rounded-2xl mb-4"></div>
+          <div class="bg-red-500/20 border border-red-400/30 px-4 py-2 rounded-2xl text-center font-bold text-sm text-red-300">
+            Central Market: 178 AQI
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Middle Column (40%) -->
+    <div class="space-y-8">
+      <!-- Policy Recommendations -->
+      <div class="glass rounded-3xl p-8 h-[48%] animate-fadeInUp animation-delay-300">
+        <div class="flex items-center gap-3 mb-8">
+          <div class="w-12 h-12 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-2xl flex items-center justify-center glow-teal">
+            <i data-lucide="award" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold">Top Policy Engine Recommendations</h3>
+        </div>
+        <div class="space-y-4">
+          <div class="group flex items-center gap-4 p-5 bg-white/5 rounded-2xl hover:bg-white/10 transition-all cursor-pointer border border-white/10 hover:border-teal-400/30">
+            <div class="w-14 h-14 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-2xl flex items-center justify-center group-hover:glow-orange border border-orange-400/30">
+              <i data-lucide="truck" class="w-7 h-7 text-orange-400"></i>
+            </div>
+            <div class="flex-1">
+              <div class="font-bold text-lg mb-1">Vehicle Restrictions</div>
+              <div class="text-sm text-slate-400">Restrict heavy diesel trucks 7-10AM</div>
+            </div>
+            <div class="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-lg glow-orange">
+              -14 pts
+            </div>
+          </div>
+          <div class="group flex items-center gap-4 p-5 bg-white/5 rounded-2xl hover:bg-white/10 transition-all cursor-pointer border border-white/10 hover:border-orange-400/30">
+            <div class="w-14 h-14 bg-gradient-to-br from-orange-500/20 to-yellow-500/20 rounded-2xl flex items-center justify-center group-hover:glow-orange border border-orange-400/30">
+              <i data-lucide="bus" class="w-7 h-7 text-orange-400"></i>
+            </div>
+            <div class="flex-1">
+              <div class="font-bold text-lg mb-1">Emission Bus Upgrade</div>
+              <div class="text-sm text-slate-400">Replace high-emission buses (9 units)</div>
+            </div>
+            <div class="bg-gradient-to-r from-orange-400 to-amber-500 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-lg glow-orange">
+              -9 pts
+            </div>
+          </div>
+          <div class="group flex items-center gap-4 p-5 bg-white/5 rounded-2xl hover:bg-white/10 transition-all cursor-pointer border border-white/10 hover:border-blue-400/30">
+            <div class="w-14 h-14 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-2xl flex items-center justify-center group-hover:glow-blue border border-blue-400/30">
+              <i data-lucide="activity" class="w-7 h-7 text-blue-400"></i>
+            </div>
+            <div class="flex-1">
+              <div class="font-bold text-lg mb-1">Dynamic Signal Priority</div>
+              <div class="text-sm text-slate-400">AI traffic signal optimization (5 intersections)</div>
+            </div>
+            <div class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-lg glow-blue">
+              -5 pts
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AQI Graph -->
+      <div class="glass rounded-3xl p-8 h-[48%] animate-fadeInUp animation-delay-400">
+        <div class="flex items-center justify-between mb-8">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center glow-blue">
+              <i data-lucide="trending-up" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-xl font-bold">AQI Forecast</h3>
+          </div>
+          <button class="bg-blue-500/20 border border-blue-400/30 px-6 py-2 rounded-2xl text-blue-300 font-medium hover:bg-blue-500/30 transition-all glow-blue">
+            Next 12 Hours
+          </button>
+        </div>
+        <canvas id="aqiChart" height="220"></canvas>
+      </div>
+    </div>
+
+    <!-- Right Column (35%) -->
+    <div class="space-y-8 pl-4">
+      <!-- Impact Simulation -->
+      <div class="glass rounded-3xl p-8 h-[48%] animate-fadeInUp animation-delay-500">
+        <div class="flex items-center gap-3 mb-8">
+          <div class="w-12 h-12 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center glow-teal">
+            <i data-lucide="git-branch" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold">Policy Impact Simulation</h3>
+        </div>
+        <div class="grid grid-cols-2 gap-6 mb-8 h-40">
+          <div class="relative rounded-2xl overflow-hidden border-2 border-orange-400/30 glow-orange">
+            <div class="absolute inset-0 heatmap bg-red-500/20"></div>
+            <div class="absolute -top-2 -right-2 bg-red-500/90 text-white px-3 py-1 rounded-full text-xs font-bold">Before</div>
+            <div class="h-full bg-gradient-to-br from-slate-900/50"></div>
+          </div>
+          <div class="relative rounded-2xl overflow-hidden border-2 border-emerald-400/30 glow-teal">
+            <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-teal-500/10"></div>
+            <div class="absolute -top-2 -right-2 bg-emerald-500/90 text-white px-3 py-1 rounded-full text-xs font-bold">After Policy</div>
+            <div class="h-full bg-gradient-to-br from-slate-900/30"></div>
+          </div>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl font-black text-emerald-400 mb-2">↓ 14 Points</div>
+          <div class="text-sm text-emerald-300 bg-emerald-500/20 px-4 py-2 rounded-2xl border border-emerald-400/30">25% Coverage Improvement</div>
+        </div>
+      </div>
+
+      <!-- Results Summary -->
+      <div class="glass rounded-3xl p-8 h-[48%] flex flex-col justify-between bg-gradient-to-b from-teal-500/5 glow-teal animate-fadeInUp animation-delay-600">
+        <div>
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-16 h-16 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-2xl flex items-center justify-center shadow-2xl">
+              <i data-lucide="check-circle" class="w-8 h-8 text-emerald-500"></i>
+            </div>
+            <h3 class="text-xl font-bold text-emerald-300">Simulation Results</h3>
+          </div>
+          <div class="text-center">
+            <div class="text-5xl font-black bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent mb-4">162 → 148</div>
+            <div class="text-3xl font-black text-emerald-400 mb-2">-14 Points</div>
+            <div class="text-lg text-emerald-300 mb-6">AQI Improvement</div>
+          </div>
+        </div>
+        <button class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-4 px-8 rounded-2xl transition-all transform hover:scale-105 shadow-2xl glow-teal mx-auto">
+          <i data-lucide="play" class="w-5 h-5 inline mr-2"></i>
+          Run New Simulation
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    lucide.createIcons();
+    document.documentElement.style.setProperty('--tw-animate-duration', '0.6s');
+
+    // Enhanced AQI Chart matching image exactly
+    const ctx = document.getElementById('aqiChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12h'],
+        datasets: [{
+          label: 'Past',
+          data: [null, 162, 165, 168],
+          borderColor: '#f59e0b',
+          backgroundColor: 'transparent',
+          tension: 0.4,
+          borderWidth: 3,
+          pointRadius: 0,
+          pointHoverRadius: 6,
+          fill: false
+        }, {
+          label: 'Forecast',
+          data: [162, 158, 155, 152, 150, 148, 146, 145, 144, 143, 142, 141, 140],
+          borderColor: '#10b981',
+          backgroundColor: ctx => {
+            const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 200);
+            gradient.addColorStop(0, 'rgba(16, 185, 129, 0.3)');
+            gradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
+            return gradient;
+          },
+          tension: 0.4,
+          borderWidth: 3,
+          pointRadius: 0,
+          pointHoverRadius: 6,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { intersect: false },
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { 
+            grid: { display: false, drawBorder: false },
+            ticks: { color: 'rgba(148, 163, 184, 0.5)', font: { size: 12 } }
+          },
+          y: { 
+            grid: { color: 'rgba(148, 163, 184, 0.1)', drawBorder: false },
+            ticks: { color: 'rgba(148, 163, 184, 0.5)' }
+          }
+        },
+        elements: { point: { hoverBackgroundColor: '#10b981' } }
+      }
+    });
+  </script>
+</body>
+</html>

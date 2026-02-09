@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Urban Policy Dashboard</title>
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #0F172A; /* deep navy */
+      margin: 0;
+      padding: 20px;
+      color: #e0f2e9;
+    }
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 20px;
+    }
+    .card {
+      background: rgba(30, 41, 59, 0.6); /* slate with opacity */
+      border-radius: 12px;
+      backdrop-filter: blur(12px); /* glassmorphism blur */
+      border: 1px solid rgba(255,255,255,0.1); /* subtle white border */
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      padding: 20px;
+      color: #e0f2e9;
+    }
+    .card h2 {
+      margin-top: 0;
+      font-size: 18px;
+      font-weight: 500;
+      color: #a8ffcb; /* mint accent for headings */
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .metric {
+      background: rgba(255,255,255,0.05);
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .policy-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .policy-list li {
+      margin: 8px 0;
+      padding: 10px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .map {
+      position: relative;
+      height: 300px;
+      background: rgba(15, 23, 42, 0.8);
+      border-radius: 12px;
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .icon {
+      position: absolute;
+      font-size: 28px;
+      color: #00cc88; /* teal/green accent */
+      text-shadow: 0 0 8px rgba(0,255,128,0.6);
+    }
+    .bus { top: 60px; left: 90px; }
+    .car { top: 180px; left: 220px; }
+    .hotspot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(255,165,0,0.7); /* orange alert */
+      position: absolute;
+      box-shadow: 0 0 12px rgba(255,165,0,0.9);
+    }
+    .hotspot1 { top: 120px; left: 140px; }
+    .hotspot2 { top: 200px; left: 260px; }
+    button {
+      margin-top:10px;
+      padding:10px 14px;
+      border:none;
+      background:#00cc88; /* teal success */
+      color:#0F172A;
+      border-radius:6px;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(0,204,136,0.6);
+    }
+    button:hover {
+      background:#00e6a0;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <!-- City Air Quality Overview -->
+    <div class="card">
+      <h2>City Air Quality Overview</h2>
+      <div class="metrics">
+        <div class="metric"><strong>AQI:</strong> 162</div>
+        <div class="metric"><strong>PM₂.₅:</strong> 58 µg/m³</div>
+        <div class="metric"><strong>NO₂:</strong> 73 µg/m³</div>
+        <div class="metric"><strong>Temp:</strong> 28°C | Humidity: 82%</div>
+      </div>
+    </div>
+
+    <!-- Policy Recommendations -->
+    <div class="card">
+      <h2>Policy Recommendations</h2>
+      <ul class="policy-list">
+        <li>Restrict Heavy Diesel Trucks (+14)</li>
+        <li>Deploy Extra Express Buses (+9)</li>
+        <li>Dynamic Traffic Signal Priority (+6)</li>
+      </ul>
+      <button>Simulate Impact</button>
+    </div>
+
+    <!-- Map Display -->
+    <div class="card">
+      <h2>City Map</h2>
+      <div class="map">
+        <div class="icon bus"><i class="fa-solid fa-bus"></i></div>
+        <div class="icon car"><i class="fa-solid fa-car-side"></i></div>
+        <div class="hotspot hotspot1"></div>
+        <div class="hotspot hotspot2"></div>
+      </div>
+    </div>
+
+    <!-- Forecast AQI Chart -->
+    <div class="card">
+      <h2>Forecast AQI</h2>
+      <canvas id="aqiChart"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const ctx = document.getElementById('aqiChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Now','+2h','+4h','+6h','+8h','+10h','+12h'],
+        datasets: [{
+          label: 'AQI Forecast',
+          data: [162,166,170,176,172,168,164],
+          borderColor: '#3b82f6', // blue accent for forecast
+          backgroundColor: 'rgba(59,130,246,0.2)',
+          tension: 0.4,
+          pointBackgroundColor: '#3b82f6',
+          pointBorderColor: '#fff'
+        }]
+      },
+      options: {
+        plugins: { legend: { labels: { color: '#e0f2e9' } } },
+        scales: {
+          x: { ticks: { color: '#e0f2e9' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+          y: { ticks: { color: '#e0f2e9' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+
