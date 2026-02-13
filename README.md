@@ -9,26 +9,6 @@ This project has:
 ✅ Policy recommendation logic
 ✅ AQI impact simulation
 
-📁 Project Structure
-project-root/
-│
-├── backend/
-│   ├── main.py
-│   ├── models.py
-│   ├── simulator.py
-│   ├── policy_engine.py
-│   ├── data/
-│   │   ├── tamil_nadu.csv
-│   │   ├── kerala.csv
-│   │   ├── andhra.csv
-│   │   └── goa.csv
-│   └── venv/
-│
-├── frontend/
-│   └── perp2.html
-│
-└── README.md
-
 ⚙️ Backend Setup (FastAPI)
 1️⃣ Go to backend folder
 cd backend
