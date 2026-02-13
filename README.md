@@ -96,7 +96,11 @@ Date format must match dataset.
 💡 Future Improvements
 
 Real-time sensor integration
+
 GIS heatmaps
+
 ML prediction models
+
 User input forms
+
 Deployment to cloud
